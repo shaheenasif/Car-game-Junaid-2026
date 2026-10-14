@@ -1,1 +1,62 @@
-index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Car Racing Game</title>
+<style>
+body{margin:0;background:#17202a;color:white;font-family:Arial;text-align:center}
+h2{margin:12px}
+canvas{width:95%;max-width:360px;background:#277a36;border:3px solid white;touch-action:none}
+button{padding:14px 22px;margin:8px;border:0;border-radius:10px;background:#1677ff;color:white;font-size:18px}
+</style>
+</head>
+<body>
+<h2>🏎️ Car Racing Game</h2>
+<p id="score">Score: 0</p>
+<canvas id="game" width="360" height="600"></canvas>
+<div>
+<button id="left">⬅ LEFT</button>
+<button id="right">RIGHT ➡</button>
+</div>
+<button onclick="restart()">RESTART</button>
+<script>
+const c=document.getElementById("game"),x=c.getContext("2d");
+let car=160,score=0,lines=0,over=false,traffic=[],left=false,right=false;
+function drawCar(a,b,color){
+x.fillStyle=color;x.fillRect(a,b,38,55);
+x.fillStyle="#bdeaff";x.fillRect(a+7,b+8,24,14);
+x.fillStyle="#222";x.fillRect(a-3,b+8,5,14);x.fillRect(a+36,b+8,5,14);x.fillRect(a-3,b+35,5,14);x.fillRect(a+36,b+35,5,14);
+}
+function frame(){
+if(over)return;
+x.fillStyle="#277a36";x.fillRect(0,0,360,600);
+x.fillStyle="#444";x.fillRect(35,0,290,600);
+x.fillStyle="white";x.fillRect(35,0,5,600);x.fillRect(320,0,5,600);
+x.fillStyle="#f8d84a";
+for(let y=-80;y<620;y+=80){x.fillRect(128,y+lines,5,40);x.fillRect(228,y+lines,5,40)}
+lines=(lines+4)%80;
+if(left)car-=5;if(right)car+=5;car=Math.max(43,Math.min(279,car));
+if(Math.random()<0.025)traffic.push({a:[45,145,245][Math.floor(Math.random()*3)],b:-60});
+for(let i=traffic.length-1;i>=0;i--){
+let t=traffic[i];t.b+=4;
+drawCar(t.a,t.b,"#e53935");
+if(car<t.a+38&&car+38>t.a&&485<t.b+55&&540>t.b){over=true;x.fillStyle="white";x.font="bold 30px Arial";x.textAlign="center";x.fillText("GAME OVER",180,290);return}
+if(t.b>610){traffic.splice(i,1);score++;document.getElementById("score").textContent="Score: "+score}
+}
+drawCar(car,485,"#1687ff");
+requestAnimationFrame(frame);
+}
+function hold(id,dir){
+let b=document.getElementById(id);
+b.onpointerdown=e=>{e.preventDefault();if(dir==="left")left=true;else right=true};
+b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{if(dir==="left")left=false;else right=false};
+}
+hold("left","left");hold("right","right");
+function restart(){car=160;score=0;lines=0;over=false;traffic=[];left=false;right=false;document.getElementById("score").textContent="Score: 0";frame()}
+restart();
+</script>
+</body>
+</html>
+
